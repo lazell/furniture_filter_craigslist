@@ -39,7 +39,7 @@ def generate_df(filename):
 
     #Add image URL
     for ix, image in zip(df.index,df['Image']):
-        df.at[ix, 'Image'] = "https://images.craigslist.org/" +  image[2:].split()[0] + "_600x450.jpg"
+        df.at[ix, 'Image'] = "https://images.craigslist.org/" +  image[2:].split(',')[0] + "_600x450.jpg"
 
     #Describe Table
     print filename + " - date: ", df.at[0, 'Time']
@@ -175,15 +175,16 @@ def export_df_to_html(df, title, htmlid, directory):
     for line in html.split("\n"):
         if line.find(".jpg</td>") != -1:
             h_image_url = line[line.find('="https://')+2:line.find('.jpg<')+4]
+
             updated_html += line.replace('.jpg</td>','.jpg"><IMG HEIGHT=75 WIDTH=75 SRC="{}"></a></td>'.format(h_image_url)) + "\n"
         else:
             updated_html += line + "\n"
 
-    #Save HTML in current directory
+    #Save HTML in specified directory
     time = str(pd.to_datetime('now')).replace(" ", "_")[:13]
     htmlname = "{}-{}.html".format(htmlid,time)
 
-    with open(htmlname, 'w') as f:
+    with open(directory + htmlname, 'w') as f:
         write_html = f.write(updated_html.encode('utf-8'))
     print htmlname + " created in current directory: {}".format(directory)
 
@@ -202,5 +203,8 @@ if __name__ == '__main__':
                       "List 1: Manufacturer, Designer, Style Filtered List",
                       "List_1",
                       "pages/")
-    export_df_to_html(df2,"List 2: Generic Filtered List Under $400 Dollar Amount","List_2")
+    export_df_to_html(df2,
+                      "List 2: Generic Filtered List Under $400 Dollar Amount",
+                      "List_2",
+                      "pages/")
     print "html files ready"
